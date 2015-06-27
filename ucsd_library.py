@@ -23,11 +23,9 @@ This section contains the 'Workflow Operations' calls. Based on version 5.3.
     + userAPIGetWorkflowInputs				Returns the inputs of a workflow
     userAPIValidateWorkFlow					Validates the workflow and returns the result.
     userAPISubmitWorkflowServiceRequest		Submits a service request with a workflow. Returns the ID of the service request.
-    userAPIRollbackWorkflow					Rolls back the specified service request ID.
+    + userAPIRollbackWorkflow					Rolls back the specified service request ID.
     userAPIExportWorkflows					Exports the specified workflows.
     userAPIImportWorkflows					Imports the workflow into the system.
-
-
 '''
 def workflow_list(folder = "", key_filter = [], result_filter = {}):
     '''
@@ -77,8 +75,6 @@ def workflow_inputs(workflow):
 
     return j['serviceResult']['details']
 
-
-
 def workflow_execute(workflow, inputs):
     '''
     Create a Service Request based on the specified Workflow and with Inputs.
@@ -106,6 +102,20 @@ def workflow_execute(workflow, inputs):
 
     return j
 
+def sr_rollback(srnumber):
+    '''
+    Rollback the Service Request Specified
+    :param srnumber: The Service Request ID
+    :return: JSON status of the request
+    '''
+    apioperation = "userAPIRollbackWorkflow"
+    u = url % (ucsdserver) + getstring % (apioperation) + parameter_lead + \
+    "{param0:\"" + srnumber + '"' + '}'
+
+    r = requests.get(u, headers=headers)
+
+    return r.text
+
 '''
 This section contains the 'Service Request Operations' calls. Based on version 5.3.
 
@@ -118,12 +128,12 @@ userAPIGetServiceRequestDetails			    Returns service request details.
 userAPICancelServiceRequest				    Cancels a service request in progress.
 userAPIGetServiceRequestLogEntries		    Returns the log entries of a service request for the requested severity
 userAPIGetServiceRequestLogEntriesAtLevels	Returns the log entries of a service request for the requested severity
-userAPIGetServiceRequestWorkFlow		    Returns service request workflow details.
++ userAPIGetServiceRequestWorkFlow		    Returns service request workflow details.
 userAPISubmitVAppServiceRequest			    Submits a service request with the virtual application catalog type and arguments.
-userAPIGetVMsForServiceRequest			    Returns VMs that are currently associated with the specified service request.
++ userAPIGetVMsForServiceRequest			Returns VMs that are currently associated with the specified service request.
 userAPISubmitWorkflowServiceRequest		    Submits a service request with a workflow. Returns the ID of the service request.
 
-userAPIGetTabularReport
++ userAPIGetTabularReport
 
 '''
 
@@ -139,10 +149,19 @@ userAPIGetTabularReport
 #     '''
 
 # def sr_provisionVMCustom():
-
 # def sr_resubmit():
 
-# def sr_get():
+def sr_get():
+    '''
+    Return the service request for the logged in user
+    :return: APITabularReport
+    '''
+    apioperation = "userAPIGetServiceRequests"
+    u = url % (ucsdserver) + getstring % (apioperation) + parameter_lead + \
+    "{}"
+
+    r = requests.get(u, headers=headers)
+    return r.text
 
 # def sr_getChild():
 
@@ -162,7 +181,6 @@ def sr_details(srnumber):
     return r.text
 
 # def sr_cancel():
-
 # def sr_log():
 # def sr_logLevel():
 # def sr_getWF():
@@ -184,20 +202,6 @@ def sr_vms(srnumber):
     return j['serviceResult']['vms']
 
 # def sr_submitWF():
-
-def sr_rollback(srnumber):
-    '''
-    Rollback the Service Request Specified
-    :param srnumber: The Service Request ID
-    :return: JSON status of the request
-    '''
-    apioperation = "userAPIRollbackWorkflow"
-    u = url % (ucsdserver) + getstring % (apioperation) + parameter_lead + \
-    "{param0:\"" + srnumber + '"' + '}'
-
-    r = requests.get(u, headers=headers)
-
-    return r.text
 
 def sr_table(status):
     '''
