@@ -13,22 +13,22 @@ headers["X-Cloupia-Request-Key"] = ucsd_key
 import requests
 import json
 
-def workflow_inputs(workflow):
-    '''
-    Query UCS Director for the inputs for a workflow
-    :param workflow: The workflow name to lookup inputs for
-    :return:
-    '''
-    apioperation = "userAPIGetWorkflowInputs"
-    u = url % (ucsdserver) + getstring % (apioperation) + parameter_lead + \
-    "{param0:\"" + workflow + '"' + '}'
 
-    r = requests.get(u, headers=headers)
+'''
+This section contains the 'Workflow Operations' calls. Based on version 5.3.
 
-    j = json.loads(r.text)
+    + userAPIGetWorkflows						Returns the workflows in a folder.
+    userAPIGetWorkflowSteps                 Returns the steps involved in the specified workflow.
+    + userAPIGetWorkflowStatus				Returns the execution status code of a workflow.
+    + userAPIGetWorkflowInputs				Returns the inputs of a workflow
+    userAPIValidateWorkFlow					Validates the workflow and returns the result.
+    userAPISubmitWorkflowServiceRequest		Submits a service request with a workflow. Returns the ID of the service request.
+    userAPIRollbackWorkflow					Rolls back the specified service request ID.
+    userAPIExportWorkflows					Exports the specified workflows.
+    userAPIImportWorkflows					Imports the workflow into the system.
 
-    return j['serviceResult']['details']
 
+'''
 def workflow_list(folder = "", key_filter = [], result_filter = {}):
     '''
     Query UCS Director for the workflows for a folder
@@ -46,6 +46,26 @@ def workflow_list(folder = "", key_filter = [], result_filter = {}):
 
     search_results = [dict_filter(r, key_filter) for r in j['serviceResult']]
     return search_results
+
+# def workflow_status():
+
+def workflow_inputs(workflow):
+    '''
+    Query UCS Director for the inputs for a workflow
+    :param workflow: The workflow name to lookup inputs for
+    :return:
+    '''
+    apioperation = "userAPIGetWorkflowInputs"
+    u = url % (ucsdserver) + getstring % (apioperation) + parameter_lead + \
+    "{param0:\"" + workflow + '"' + '}'
+
+    r = requests.get(u, headers=headers)
+
+    j = json.loads(r.text)
+
+    return j['serviceResult']['details']
+
+
 
 def workflow_execute(workflow, inputs):
     '''
@@ -73,20 +93,54 @@ def workflow_execute(workflow, inputs):
     j = json.loads(r.text)
 
     return j
+'''
+This section contains the 'Service Request Operations' calls. Based on version 5.3.
 
-def sr_rollback(srnumber):
-    '''
-    Rollback the Service Request Specified
-    :param srnumber: The Service Request ID
-    :return: JSON status of the request
-    '''
-    apioperation = "userAPIRollbackWorkflow"
-    u = url % (ucsdserver) + getstring % (apioperation) + parameter_lead + \
-    "{param0:\"" + srnumber + '"' + '}'
+userAPISubmitServiceRequest				    Submits a service request for provisioning VMs. Supports Qty 1.
+userAPISubmitServiceRequestCustom           Submits a service request for provisioning virtual machines (VMs) with the inputs vmName, vCPU, and memory.
+userAPIResubmitServiceRequest               Resubmits a service request for processing the specified service request.
+userAPIGetServiceRequests				    Returns all service requests for the user group.
+userAPIGetChildServiceRequests              Returns the child service requests of the specified parent service request.
+userAPIGetServiceRequestDetails			    Returns service request details.
+userAPICancelServiceRequest				    Cancels a service request in progress.
+userAPIGetServiceRequestLogEntries		    Returns the log entries of a service request for the requested severity
+userAPIGetServiceRequestLogEntriesAtLevels	Returns the log entries of a service request for the requested severity
+userAPIGetServiceRequestWorkFlow		    Returns service request workflow details.
+userAPISubmitVAppServiceRequest			    Submits a service request with the virtual application catalog type and arguments.
+userAPIGetVMsForServiceRequest			    Returns VMs that are currently associated with the specified service request.
+userAPISubmitWorkflowServiceRequest		    Submits a service request with a workflow. Returns the ID of the service request.
 
-    r = requests.get(u, headers=headers)
+userAPIGetTabularReport
 
-    return r.text
+'''
+
+# def sr_provisionVM():
+#     '''
+#     Submits a service request for provisioning virtual machines (VMs)
+#     :param0 catName: Name of the catalog.
+#     :param1 vdcName: Name of the VDC.
+#     :param2 lease: Duration of VM provisioning in hours. After the set duration, VM will be automatically deprovisioned.
+#     :param3 qty: Quantity of VM to be provisioned (only 1 in 5.x)
+#     :param4 comment: Comment set as the provisioned VM label.
+#     :return: srnumber
+#     '''
+
+#    apioperation = "userAPISubmitServiceRequest"
+    #u = url % (ucsdserver) + getstring % (apioperation) + parameter_lead + \
+    #"{param0:\"" + srnumber + '"' + '}'
+    #{param0:"sample",param1:"sample",param2:1000,param3:1000,param4:1000,param5:"sample"}
+
+    #r = requests.get(u, headers=headers)
+
+    #return r.text
+
+# def sr_provisionVMCustom():
+
+# def sr_resubmit():
+
+# def sr_get():
+
+# def sr_getChild():
 
 def sr_details(srnumber):
     '''
@@ -103,6 +157,66 @@ def sr_details(srnumber):
 
     return r.text
 
+# def sr_cancel():
+
+# def sr_log():
+# def sr_logLevel():
+# def sr_getWF():
+# def sr_submitVApp():
+
+def sr_vms(srnumber):
+    '''
+    Return the VMs of the Service Request Specified
+    :param srnumber: The Service Request ID
+    :return: JSON of the SR Status
+    '''
+    apioperation = "userAPIGetVMsForServiceRequest"
+    u = url % (ucsdserver) + getstring % (apioperation) + parameter_lead + \
+    "{param0:\"" + srnumber + '"' + '}'
+
+    r = requests.get(u, headers=headers)
+    j = json.loads(r.text)
+
+    return j['serviceResult']['vms']
+
+# def sr_submitWF():
+
+def sr_rollback(srnumber):
+    '''
+    Rollback the Service Request Specified
+    :param srnumber: The Service Request ID
+    :return: JSON status of the request
+    '''
+    apioperation = "userAPIRollbackWorkflow"
+    u = url % (ucsdserver) + getstring % (apioperation) + parameter_lead + \
+    "{param0:\"" + srnumber + '"' + '}'
+
+    r = requests.get(u, headers=headers)
+
+    return r.text
+
+def sr_table(status):
+    '''
+    Return the details of the Service Request Specified - Workflow Based Only
+    :param status: Obtain the active or archived table data
+    :return: JSON of the SR table
+    '''
+    apioperation = "userAPIGetTabularReport"
+    #{param0:"6",param1:"",param2:"SERVICE-REQUESTS-T10"}
+    #%7Bparam0:%226%22,param1:%22%22,param2:%22SERVICE-REQUESTS-T10%22%7D"
+
+    if status == 'active':
+        u = url % (ucsdserver) + getstring % (apioperation) + parameter_lead + \
+            "%7Bparam0:%226%22,param1:%22%22,param2:%22SERVICE-REQUESTS-T10%22%7D"
+        r = requests.get(u, headers=headers)
+        return r.text
+    elif status == 'archive':
+        u = url % (ucsdserver) + getstring % (apioperation) + parameter_lead + \
+            "%7Bparam0:%226%22,param1:%22%22,param2:%22ARCHIVED-SERVICE-REQUESTS-T10%22%7D"
+        r = requests.get(u, headers=headers)
+        return r.text
+
+###########################################
 
 # Need to update notes and things below here
 def vdc_list(group="", provider="", key_filter = [], result_filter = {}):
@@ -432,19 +546,3 @@ def vmware_provision(catalog, vdc, comment="", vmname="", vcpus="0", vram="0", d
     # vms = sr_vms()
 
     return j
-
-def sr_vms(srnumber):
-    '''
-    Return the VMs of the Service Request Specified
-    :param srnumber: The Service Request ID
-    :return: JSON of the SR Status
-    '''
-    apioperation = "userAPIGetVMsForServiceRequest"
-    u = url % (ucsdserver) + getstring % (apioperation) + parameter_lead + \
-    "{param0:\"" + srnumber + '"' + '}'
-
-    r = requests.get(u, headers=headers)
-    j = json.loads(r.text)
-
-    return j['serviceResult']['vms']
-
