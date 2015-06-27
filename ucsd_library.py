@@ -17,8 +17,8 @@ import json
 '''
 This section contains the 'Workflow Operations' calls. Based on version 5.3.
 
-    + userAPIGetWorkflows						Returns the workflows in a folder.
-    userAPIGetWorkflowSteps                 Returns the steps involved in the specified workflow.
+    + userAPIGetWorkflows					Returns the workflows in a folder.
+    + userAPIGetWorkflowSteps               Returns the steps involved in the specified workflow.
     + userAPIGetWorkflowStatus				Returns the execution status code of a workflow.
     + userAPIGetWorkflowInputs				Returns the inputs of a workflow
     userAPIValidateWorkFlow					Validates the workflow and returns the result.
@@ -47,7 +47,19 @@ def workflow_list(folder = "", key_filter = [], result_filter = {}):
     search_results = [dict_filter(r, key_filter) for r in j['serviceResult']]
     return search_results
 
-# def workflow_status():
+def workflow_steps(srnumber):
+        '''
+        Query UCS Director for the steps involved in a service requet workflow
+        :param srnumber: The service request ID
+        :return: List <APIWorkflowStep>
+        '''
+        apioperation = "servicerequest:userAPIGetWorkflowSteps"
+        u = url % (ucsdserver) + getstring % (apioperation) + parameter_lead + \
+        "{param0:{\"requestId\":" + srnumber + "}}"
+
+        r = requests.get(u, headers=headers)
+
+        return r.text
 
 def workflow_inputs(workflow):
     '''
@@ -93,6 +105,7 @@ def workflow_execute(workflow, inputs):
     j = json.loads(r.text)
 
     return j
+
 '''
 This section contains the 'Service Request Operations' calls. Based on version 5.3.
 
@@ -124,15 +137,6 @@ userAPIGetTabularReport
 #     :param4 comment: Comment set as the provisioned VM label.
 #     :return: srnumber
 #     '''
-
-#    apioperation = "userAPISubmitServiceRequest"
-    #u = url % (ucsdserver) + getstring % (apioperation) + parameter_lead + \
-    #"{param0:\"" + srnumber + '"' + '}'
-    #{param0:"sample",param1:"sample",param2:1000,param3:1000,param4:1000,param5:"sample"}
-
-    #r = requests.get(u, headers=headers)
-
-    #return r.text
 
 # def sr_provisionVMCustom():
 
