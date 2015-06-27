@@ -17,27 +17,17 @@ import argparse
 import ucsd_library
 from prettytable import PrettyTable
 
-parser = argparse.ArgumentParser(description='Demo')
-parser.add_argument('--verbose',
-    action='store_true',
-    help='verbose flag' )
-parser.add_argument('--list', '-l',
-    action='store_true',
-    help='list flag' )
-
-args = parser.parse_args()
-
-if args.list:
-    sr_list = ucsd_library.sr_table()
+def tabular(type):
+    # Obtain the data from UCSD
+    sr_list = ucsd_library.sr_table(type)
 
     # Convert JSON string to Dictionary
     srTable = json.loads(sr_list)
 
+    srTableResult = srTable["serviceResult"]
+    rows = srTableResult["rows"]
 
-    TabularReportValues = srTable["serviceResult"]
-    rows = TabularReportValues["rows"]
-
-
+    # Create the table
     table = PrettyTable(["ID", "Catalog", "Status", "Comment", "User"])
 
     for item in rows:
@@ -48,6 +38,26 @@ if args.list:
     	e = item["Initiating_User"]
     	table.add_row([a, b, c, d, e])
 
-    print table
+    return table
+
+
+#
+parser = argparse.ArgumentParser(
+    description='The pupose is to provide CLI functionality around UCSD service requests')
+parser.add_argument('--list', '-l',
+    action='store_true',
+    help='produces a table of all the active service requests' )
+parser.add_argument('--archive', '-a',
+    action='store_true',
+    help='produces a table of all the archived service requests' )
+
+args = parser.parse_args()
+
+if args.list:
+    srTable = tabular('active')
+    print(srTable)
+elif  args.archive:
+    srTable = tabular('archive')
+    print(srTable)
 else:
-    print("~ No flag selected")
+    print('Need to specify a flag, use -h or --help for more info')
